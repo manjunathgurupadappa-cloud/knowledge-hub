@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a href="{% url 'books:list' %}" class="small"><i class="bi bi-arrow-left"></i> All books</a>
+    <h1 class="mt-1">{{ book.title }}</h1>
+    <p class="text-muted mb-0">by {{ book.author }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'books:edit' book.pk %}"><i class="bi bi-pencil me-1"></i> Edit</a>
+    <a class="btn btn-outline-danger" href="{% url 'books:delete' book.pk %}"><i class="bi bi-trash me-1"></i> Delete</a>
+  </div>
+</div>
+<div class="panel reading">
+  <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+    <span class="badge status-{{ book.status }}">{{ book.get_status_display }}</span>
+    <span class="text-muted">{{ book.category }}</span>
+    {% if book.rating %}
+      <span class="stars" aria-label="Rated {{ book.rating }} out of 5">
+        {% for i in book.star_range %}<i class="bi {% if i <= book.rating %}bi-star-fill{% else %}bi-star{% endif %}"></i>{% endfor %}
+      </span>
+    {% endif %}
+  </div>
+  <h2 class="h6">Notes</h2>
+  {% if book.notes %}
+    <div class="log-body">{{ book.notes|linebreaks }}</div>
+  {% else %}
+    <p class="text-muted">No notes yet. <a href="{% url 'books:edit' book.pk %}">Add some</a>.</p>
+  {% endif %}
+  <hr>
+  <p class="small text-muted mb-0">Added {{ book.created_at|date:"d M Y" }}</p>
+</div>
+{% endblock %}

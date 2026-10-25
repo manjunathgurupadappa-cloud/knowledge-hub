@@ -1,0 +1,5 @@
+# Local development + base requirements
+Django>=5.1,<5.2
+python-dotenv>=1.0
+whitenoise>=6.7
+dj-database-url>=2.2

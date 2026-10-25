@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Hello, {{ request.user.username }}</h1>
+    <p class="text-muted mb-0">Here is what you have been learning and reading.</p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <a class="stat stat-logs" href="{% url 'logs:list' %}">
+      <i class="bi bi-journal-text"></i>
+      <div><div class="stat-num">{{ total_logs }}</div><div class="stat-label">Learning logs</div></div>
+    </a>
+  </div>
+  <div class="col-6 col-xl-3">
+    <a class="stat stat-books" href="{% url 'books:list' %}">
+      <i class="bi bi-book"></i>
+      <div><div class="stat-num">{{ total_books }}</div><div class="stat-label">Books</div></div>
+    </a>
+  </div>
+  <div class="col-6 col-xl-3">
+    <a class="stat stat-topics" href="{% url 'logs:topic_list' %}">
+      <i class="bi bi-folder2-open"></i>
+      <div><div class="stat-num">{{ total_topics }}</div><div class="stat-label">Topics</div></div>
+    </a>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat stat-week">
+      <i class="bi bi-calendar-week"></i>
+      <div><div class="stat-num">{{ logs_this_week }}</div><div class="stat-label">Logs in the last 7 days</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="panel h-100">
+      <div class="panel-head">
+        <h2>Recent learning logs</h2>
+        <a href="{% url 'logs:list' %}" class="small">View all</a>
+      </div>
+      {% for log in recent_logs %}
+        <a class="list-row" href="{{ log.get_absolute_url }}">
+          <div>
+            <div class="fw-medium">{{ log.title }}</div>
+            <div class="small text-muted">{{ log.topic.name }}</div>
+          </div>
+          <span class="small text-muted text-nowrap">{{ log.date|date:"d M Y" }}</span>
+        </a>
+      {% empty %}
+        <div class="empty">
+          <p class="mb-2">No learning logs yet.</p>
+          <a class="btn btn-sm btn-primary" href="{% url 'logs:create' %}">Add your first log</a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="panel h-100">
+      <div class="panel-head"><h2>Reading progress</h2></div>
+      {% if total_books %}
+        {% for item in progress %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small mb-1">
+              <a class="text-reset" href="{% url 'books:list' %}?status={{ item.key }}">{{ item.label }}</a>
+              <span class="text-muted">{{ item.count }}</span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="{{ item.label }}" aria-valuenow="{{ item.percent }}" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bar-{{ item.key }}" style="width: {{ item.percent }}%"></div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty">
+          <p class="mb-2">Your bookshelf is empty.</p>
+          <a class="btn btn-sm btn-primary" href="{% url 'books:create' %}">Add a book</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="panel h-100">
+      <div class="panel-head">
+        <h2>Recently added books</h2>
+        <a href="{% url 'books:list' %}" class="small">View all</a>
+      </div>
+      {% for book in recent_books %}
+        <a class="list-row" href="{{ book.get_absolute_url }}">
+          <div>
+            <div class="fw-medium">{{ book.title }}</div>
+            <div class="small text-muted">{{ book.author }}</div>
+          </div>
+          <span class="badge status-{{ book.status }}">{{ book.get_status_display }}</span>
+        </a>
+      {% empty %}
+        <div class="empty"><p class="mb-0">No books added yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="panel h-100">
+      <div class="panel-head">
+        <h2>Logs by topic</h2>
+        <a href="{% url 'logs:topic_list' %}" class="small">Manage</a>
+      </div>
+      {% for topic in topic_stats %}
+        <a class="list-row" href="{% url 'logs:list' %}?topic={{ topic.pk }}">
+          <span>{{ topic.name }}</span>
+          <span class="badge text-bg-light border">{{ topic.log_count }}</span>
+        </a>
+      {% empty %}
+        <div class="empty"><p class="mb-0">Create a topic to organise your logs.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

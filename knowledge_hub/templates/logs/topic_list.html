@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}Topics{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Topics</h1></div>
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="panel">
+      <div class="panel-head"><h2>Add a topic</h2></div>
+      <form method="post" novalidate data-prevent-double-submit>
+        {% csrf_token %}
+        {% include "partials/form_fields.html" %}
+        <button type="submit" class="btn btn-primary w-100">Add topic</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="panel p-0">
+      {% if topics %}
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead><tr><th>Topic</th><th>Logs</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>
+              {% for topic in topics %}
+                <tr>
+                  <td>
+                    <a class="fw-medium text-reset" href="{% url 'logs:list' %}?topic={{ topic.pk }}">{{ topic.name }}</a>
+                    {% if topic.description %}<div class="small text-muted">{{ topic.description }}</div>{% endif %}
+                  </td>
+                  <td>{{ topic.log_count }}</td>
+                  <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'logs:topic_edit' topic.pk %}" aria-label="Edit {{ topic.name }}"><i class="bi bi-pencil"></i></a>
+                    <a class="btn btn-sm btn-outline-danger" href="{% url 'logs:topic_delete' topic.pk %}" aria-label="Delete {{ topic.name }}"><i class="bi bi-trash"></i></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty"><p class="mb-0">No topics yet. Add one to start organising your logs.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

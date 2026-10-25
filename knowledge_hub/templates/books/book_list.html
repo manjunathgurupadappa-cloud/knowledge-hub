@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block title %}Books{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Books</h1>
+  <a class="btn btn-primary" href="{% url 'books:create' %}"><i class="bi bi-plus-lg me-1"></i> Add book</a>
+</div>
+
+<ul class="nav status-tabs mb-3">
+  {% for tab in status_tabs %}
+    <li class="nav-item">
+      <a class="nav-link {% if tab.value == selected_status %}active{% endif %}" href="?{% if tab.value %}status={{ tab.value }}{% endif %}">
+        {{ tab.label }} <span class="count">{{ tab.count }}</span>
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+
+<form method="get" class="panel filter-bar mb-3" data-autosubmit>
+  {% if selected_status %}<input type="hidden" name="status" value="{{ selected_status }}">{% endif %}
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-md-6">
+      <label for="q" class="form-label small mb-1">Search</label>
+      <input type="search" id="q" name="q" value="{{ q }}" class="form-control" placeholder="Title, author, category or notes">
+    </div>
+    <div class="col-12 col-md-4">
+      <label for="category" class="form-label small mb-1">Category</label>
+      <select id="category" name="category" class="form-select" data-autosubmit-field>
+        <option value="">All categories</option>
+        {% for c in categories %}
+          <option value="{{ c }}" {% if c == selected_category %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary flex-fill">Search</button>
+      {% if q or selected_category or selected_status %}
+        <a href="{% url 'books:list' %}" class="btn btn-outline-secondary" title="Clear filters" aria-label="Clear filters"><i class="bi bi-x-lg"></i></a>
+      {% endif %}
+    </div>
+  </div>
+</form>
+
+<div class="panel p-0">
+  {% if page_obj %}
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr><th>Book</th><th>Category</th><th>Status</th><th>Rating</th><th class="text-end">Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for book in page_obj %}
+            <tr>
+              <td>
+                <a class="fw-medium text-reset" href="{{ book.get_absolute_url }}">{{ book.title }}</a>
+                <div class="small text-muted">{{ book.author }}</div>
+              </td>
+              <td>{{ book.category }}</td>
+              <td><span class="badge status-{{ book.status }}">{{ book.get_status_display }}</span></td>
+              <td class="text-nowrap">
+                {% if book.rating %}
+                  <span class="stars" aria-label="Rated {{ book.rating }} out of 5">
+                    {% for i in book.star_range %}<i class="bi {% if i <= book.rating %}bi-star-fill{% else %}bi-star{% endif %}"></i>{% endfor %}
+                  </span>
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+              </td>
+              <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'books:edit' book.pk %}" aria-label="Edit {{ book.title }}"><i class="bi bi-pencil"></i></a>
+                <a class="btn btn-sm btn-outline-danger" href="{% url 'books:delete' book.pk %}" aria-label="Delete {{ book.title }}"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">
+      {% if q or selected_category or selected_status %}
+        <p class="mb-2">No books match your filters.</p>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'books:list' %}">Clear filters</a>
+      {% else %}
+        <p class="mb-2">Your bookshelf is empty.</p>
+        <a class="btn btn-sm btn-primary" href="{% url 'books:create' %}">Add your first book</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}
